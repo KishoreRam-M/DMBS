@@ -1,0 +1,105 @@
+## 🔧 **Core Concept of 2PC**
+
+The **main goal** of 2PC is to ensure **atomicity** (all or nothing) for a transaction that spans **multiple databases (nodes)**.
+
+---
+
+## 🧱 **Roles in 2PC**
+
+1. **Coordinator**
+
+   * Controls the entire transaction.
+   * Communicates with all participating nodes (databases).
+   * Decides the final outcome: **commit** or **abort**.
+
+2. **Participants (Nodes)**
+
+   * Execute part of the transaction locally.
+   * Report their readiness to commit or not.
+
+---
+
+## 🔁 **Phases of 2PC: Explained with Concepts**
+
+---
+
+### ✅ **Phase 1: Prepare Phase (Voting Phase)**
+
+* **Step 1:** The **coordinator** sends a `PREPARE` message to all participant nodes.
+* **Step 2:** Each node:
+
+  * Runs the transaction **locally** but **does not commit**.
+  * Checks whether it can commit:
+
+    * Are all constraints valid?
+    * Are locks acquired?
+    * Is the operation safe?
+  * Writes a **"vote"** to its log (Write-Ahead Log):
+
+    * `VOTE-COMMIT`: Ready to commit.
+    * `VOTE-ABORT`: Cannot commit (error, constraints, etc.).
+* **Step 3:** Each node sends its vote to the coordinator.
+
+> 📌 **Concept**: Nodes *prepare* the data changes and *vote* but don’t make them permanent yet.
+
+---
+
+### 🚦 **Phase 2: Decision Phase (Commit/Abort)**
+
+* The **coordinator** collects all the votes.
+
+#### Case 1: **All Voted COMMIT**
+
+* Logs the decision as `GLOBAL-COMMIT`.
+* Sends `COMMIT` messages to all participants.
+* Each participant:
+
+  * Commits the transaction locally.
+  * Logs the `COMMIT`.
+  * Releases any locks.
+
+#### Case 2: **At least One Voted ABORT**
+
+* Logs the decision as `GLOBAL-ABORT`.
+* Sends `ABORT` messages to all participants.
+* Each participant:
+
+  * Rolls back any local changes.
+  * Logs the `ABORT`.
+  * Releases locks.
+
+> 📌 **Concept**: The final decision is **global** — all commit or all abort — even if one fails.
+
+---
+
+## 💡 **Why Is This Important?**
+
+It handles the core problems of distributed databases:
+
+| Problem         | 2PC Solution                                |
+| --------------- | ------------------------------------------- |
+| **Atomicity**   | All or none commit through global decision. |
+| **Consistency** | Nodes only commit if coordinator says so.   |
+| **Durability**  | Logs ensure recovery even after crash.      |
+| **Isolation**   | Locks are held until final decision.        |
+
+---
+
+## ⚠️ Limitations to Remember
+
+| Concept                     | Issue Description                                                  |
+| --------------------------- | ------------------------------------------------------------------ |
+| **Blocking**                | Participants may wait forever if coordinator crashes after voting. |
+| **No Progress**             | Even one slow or dead node can delay everyone.                     |
+| **Single Point of Failure** | If the coordinator crashes, there's no one to finalize.            |
+
+---
+
+## 🧠 Summary of Concepts in 2PC
+
+| Step | Conceptual Action              | Purpose                               |
+| ---- | ------------------------------ | ------------------------------------- |
+| 1    | Prepare (ask to commit)        | Check if all nodes are ready          |
+| 2    | Vote (yes/no)                  | Gather individual outcomes            |
+| 3    | Global decision (commit/abort) | Ensure atomic, consistent final state |
+| 4    | Log each action                | Recovery and durability support       |
