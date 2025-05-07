@@ -320,6 +320,17 @@ Alternative Solution: Linear Probing
                      probed   probed  probed  probed           position
 ```
 
+
+| Feature          | 🔵 Static Hashing                        | 🔴 Dynamic Hashing                       |
+| ---------------- | ---------------------------------------- | ---------------------------------------- |
+| 🔧 Table Size    | Fixed (does not grow)                    | Grows or shrinks as data changes         |
+| 🔢 Hash Function | Fixed (e.g., `h(k) = k % 10`)            | Changes when table size changes          |
+| 📈 Performance   | Slows down if too full (more collisions) | Keeps good performance with growing data |
+| 📦 Overflow      | Handled using chaining or probing        | Buckets split to reduce collisions       |
+| ⚙️ Complexity    | Simple                                   | More complex (needs directory, splits)   |
+| 🕒 Best For      | Small, fixed-size datasets               | Large or growing datasets                |
+
+
 # Q6: Compare and contrast static and dynamic hashing.
 
 **What**: 
