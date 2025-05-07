@@ -1,270 +1,253 @@
-### 1. How does the architecture of a distributed database affect data retrieval and storage compared to a centralized system?
+1. Distributed vs Centralized Database Architecture
 
-* Think of a centralized database like a single big library in one city. Everyone must travel to that library to borrow or return a book. If the library closes (e.g., server crash), no one can access books.
-* A distributed database is like having smaller libraries in many cities. People go to their nearest library—faster and more convenient. Even if one library closes, others stay open.
+Definition:
+A centralized database stores all data on a single server, while a distributed database spreads data across multiple servers in different locations.
 
-✅ Pros of distributed:
+Example:
+A centralized system is like one big library in a single city. A distributed system is like having smaller libraries in multiple cities for faster, more reliable access.
 
-* Faster access for local users
-* System keeps running even if a server fails (fault tolerance)
+Pros of Distributed:
 
-⚠️ But:
+Faster access for local users
 
-* Data must be synchronized (kept up-to-date) across locations
-* Harder to manage and ensure all data copies are consistent
+Fault tolerance: system keeps running even if one server fails
 
----
-
-### 2. What are the trade-offs between consistency, availability, and partition tolerance in distributed systems (CAP Theorem)?
-
-Let’s say you run a pizza delivery chain with 3 goals:
-
-* Every store has the same menu (Consistency)
-* Customers always get served (Availability)
-* System runs even if one store’s internet is down (Partition Tolerance)
-
-⚠️ CAP Theorem says: You can only achieve 2 out of 3 at the same time.
-
-Examples:
-
-* Banking apps often prioritize Consistency & Partition Tolerance (correct balances > always responding)
-* Social media may prefer Availability & Partition Tolerance (show old data instead of nothing)
-
-🧠 Tip: Choose trade-offs based on what your app values more—accuracy or uptime.
-
----
-
-### 3. How do access control mechanisms help ensure that only authorized users can interact with specific database objects?
-
-Imagine a school:
-
-* Students need ID cards to enter (Authentication)
-* Not all students can enter the staff room (Authorization)
-* Security cameras record who enters and when (Auditing)
-
-In databases:
-
-* Users must log in (authentication)
-* Roles determine what they can see or change (authorization)
-* Logs track actions (auditing)
-
-🎯 Result: Keeps your data safe from unauthorized access or misuse.
-
----
-
-### 4. When is a document-based database better than a key-value store in NoSQL?
-
-🔑 Key-Value store = Locker with a label (key) and a simple item inside (value). Great for:
-
-* Fast lookups
-* Simple apps like session storage or caching
-
-📄 Document-based = Filing cabinet with folders (JSON-like documents) that have structured data. Great for:
-
-* User profiles, blog posts, products with details
-* Apps needing search/filter (querying fields inside documents)
-
-Choose document-based when you need:
-
-* Flexible schema (no fixed tables)
-* Rich queries
-* Nested data (e.g., user has name, address, preferences)
-
----
-
-### 5. Why is distributed query processing more challenging than in centralized databases?
-
-Running a query in one place (centralized) is like asking one chef to cook in one kitchen.
-
-In a distributed database:
-
-* Ingredients are in multiple kitchens
-* Chefs must coordinate
-* Some kitchens may be far away (network delays)
-
-Problems:
-
-* Delay due to travel (network latency)
-* Different kitchens might have different versions of ingredients (data consistency)
-* Costly to move ingredients around (data movement)
-
-Solutions:
-
-* Store related data together
-* Reduce travel (optimize query paths)
-* Cache results to avoid repeated work
-
----
-
-### 6. How does query optimization differ in distributed databases?
-
-In a regular system (single-node), optimization focuses on:
-
-* CPU, RAM, disk of one machine
-
-In a distributed system:
-
-* Must also think about:
-
-  * Where data lives (avoid moving too much across network)
-  * Running multiple query parts in parallel (parallel processing)
-  * Network speed and load
-
-Think of it like planning a delivery:
-
-* In one city: focus on shortest path
-* Across cities: factor in traffic, fuel, number of trucks (nodes)
-
----
-
-### 7. What is data fragmentation and how does it affect query performance?
-
-🧩 Data fragmentation = Breaking large datasets into smaller chunks (fragments) and storing them in different places.
-
-Pros:
-
-* Speeds up local access
-* Reduces storage load per server
 
 Cons:
 
-* Queries that need data from multiple fragments take longer
-* More complex joins
+Synchronization is hard
 
-✅ To optimize:
+Data consistency is harder to maintain
 
-* Place frequently used data together (based on usage patterns)
-* Copy key fragments across nodes (replication)
-* Smart query planning to reduce fragment access
+
 
 ---
 
-### 8. What causes SQL injection and how to prevent it?
+2. CAP Theorem in Distributed Systems
 
-SQL injection happens when:
-
-* User inputs are used directly in SQL queries
-* Malicious users can trick the database into running harmful commands
+Definition:
+The CAP Theorem states that a distributed system can only guarantee two out of three: Consistency, Availability, and Partition Tolerance.
 
 Example:
-If input = ' OR 1=1; -- it can bypass login security
+Pizza chain: You can’t guarantee the same menu (consistency), always deliver (availability), and work during internet failures (partition tolerance) all at once.
 
-🛡️ Prevent it using:
-
-* Parameterized queries (use placeholders like ?)
-* Input validation (check format, type, and length)
-* Escaping dangerous characters (e.g., quotes)
-
-Tools like PreparedStatement in Java, PDO in PHP, or parameterized queries in Python can help.
 
 ---
 
-### 9. How to ensure data consistency in a distributed database with multiple updates?
+3. Access Control Mechanisms in Databases
 
-When different nodes update the same data, conflicts can occur.
+Definition:
+Access control ensures that only authorized users can access or modify certain parts of the database. It includes authentication, authorization, and auditing.
 
-🧠 Solutions:
+Example:
+Like a school:
 
-* Consensus algorithms (like Raft or Paxos): nodes agree on changes
-* Version control: track who updated what and when
-* Synchronous replication: all nodes update at once (slower but safer)
+Authentication = student ID to enter
 
-Trade-off: More consistency = less speed and availability
+Authorization = only staff enter the staff room
 
----
+Auditing = security logs to track access
 
-### 10. Best NoSQL model for high availability and fault tolerance?
 
-✅ Cassandra or MongoDB are great options.
-
-Why?
-
-* They store multiple copies of data across nodes (replication)
-* If one node fails, another responds (failover)
-* Easy to add more nodes (horizontal scaling)
-
-Used in: Netflix, Instagram, WhatsApp
-
-Perfect for:
-
-* Messaging apps
-* Shopping carts
-* Real-time analytics
 
 ---
 
-### 11. How to improve slow query performance in a distributed database?
+4. Document-Based vs Key-Value NoSQL Databases
 
-Imagine you run a food delivery app across cities:
+Definition:
 
-* Don’t ask every store for every order
-* Keep popular data nearby
+Key-Value Store: Stores data as key-value pairs. Fast and simple.
 
-✅ Strategies:
+Document-Based DB: Stores data as JSON-like documents with nested structures.
 
-* Data localization: put related data on same node
-* Query parallelization: split and run on multiple nodes
-* Indexing: make searches faster
-* Caching: save frequent query results
-
-These cut down on delays and reduce unnecessary data movement.
-
----
-
-### 12. How to defend against frequent SQL injection attacks?
-
-💡 Golden rule: Never trust user input.
-
-Steps:
-
-* Use parameterized queries always
-* Validate inputs (e.g., only allow valid email format)
-* Use Web Application Firewalls (WAFs) to block known attack patterns
-* Regularly scan your code and database for vulnerabilities
-
-✅ Bonus: Use stored procedures instead of building SQL dynamically
-
----
-
-### 13. How to model user profiles with relationships in a document-based NoSQL database?
-
-Use JSON-like documents.
 
 Example:
 
-{
-"userId": "u123",
-"name": "Kishore",
-"email": "[kishore@example.com](mailto:kishore@example.com)",
-"friends": \[
-{"userId": "u456", "name": "Priya"},
-{"userId": "u789", "name": "Rahul"}
-],
-"posts": \[
-{"postId": "p1", "content": "Hello world!", "timestamp": "2025-01-01"}
-]
-}
+Use key-value for fast lookups (e.g., session tokens)
 
-✅ Embedded relationships = quick access
-✅ Referenced relationships = better when relationships grow large
+Use document-based for complex data like user profiles or products
+
+
 
 ---
 
-### 14. What are flow control mechanisms and how do they protect the database?
+5. Distributed Query Processing Challenges
 
-Flow control = Managing how users and systems interact with the database safely
+Definition:
+Distributed query processing involves executing queries across multiple nodes or servers, rather than on a single database instance.
 
-It includes:
+Challenges:
 
-* Access Control (who can do what)
-* Transaction control (ensures all or nothing changes)
-* Rate limiting (prevent overload or abuse)
-* Role-based access (admins vs regular users)
+Network delays
 
-Imagine a nightclub:
+Data consistency issues
 
-* Bouncer checks ID (authentication)
-* VIP area access is restricted (authorization)
-* Cameras monitor activity (auditing)
+High cost of data movement
 
-Same logic applies to secure databases.
+
+Solution:
+Optimize query paths, cache results, and group related data on the same nodes.
+
+
+---
+
+6. Query Optimization in Distributed Databases
+
+Definition:
+Query optimization is the process of choosing the most efficient way to execute a query, especially when data is distributed.
+
+In Distributed Systems:
+
+Optimize for data location
+
+Use parallel processing
+
+Minimize network traffic
+
+
+
+---
+
+7. Data Fragmentation
+
+Definition:
+Data fragmentation splits a dataset into smaller parts (fragments) and stores them across multiple locations.
+
+Pros:
+
+Faster local access
+
+Balanced storage load
+
+
+Cons:
+
+Complex joins across fragments
+
+Performance overhead during distributed queries
+
+
+
+---
+
+8. SQL Injection: Causes and Prevention
+
+Definition:
+SQL Injection is a security vulnerability where attackers insert malicious SQL code into queries to access or manipulate data.
+
+Causes:
+
+Using user input directly in SQL queries
+
+
+Prevention:
+
+Parameterized queries
+
+Input validation
+
+Escaping dangerous characters
+
+
+
+---
+
+9. Ensuring Data Consistency in Distributed Databases
+
+Definition:
+Data consistency means all users see the same data, even with concurrent updates from different locations.
+
+Solutions:
+
+Consensus algorithms (Raft, Paxos)
+
+Synchronous replication
+
+Versioning and conflict resolution
+
+
+
+---
+
+10. Best NoSQL Model for High Availability and Fault Tolerance
+
+Definition:
+A highly available and fault-tolerant system ensures users can access data even when some parts fail.
+
+Best Options:
+
+Cassandra: Highly available, peer-to-peer model
+
+MongoDB: Easy replication and automatic failover
+
+
+
+---
+
+11. Improving Query Performance in Distributed Databases
+
+Definition:
+Improving query performance means reducing response time and resource usage during data retrieval.
+
+Techniques:
+
+Localizing data
+
+Running queries in parallel
+
+Creating indexes
+
+Caching results
+
+
+
+---
+
+12. Defending Against SQL Injection
+
+Definition:
+Defending against SQL injection involves preventing attackers from injecting malicious SQL commands through user inputs.
+
+Strategies:
+
+Always use parameterized queries
+
+Validate and sanitize all inputs
+
+Use WAFs
+
+Periodic security audits
+
+
+
+---
+
+13. Modeling User Profiles in Document-Based NoSQL Databases
+
+Definition:
+Modeling in NoSQL involves storing complex, nested user data using documents (e.g., JSON).
+
+Approach:
+
+Use embedded documents for quick access to related data
+
+Use references when data grows large or is shared across documents
+
+
+
+---
+
+14. Flow Control Mechanisms in Databases
+
+Definition:
+Flow control in databases includes managing user access, transactions, and system load to ensure safe and efficient operations.
+
+Mechanisms:
+
+Access control (authentication, authorization)
+
+Transaction control (ensures atomicity and consistency)
+
+Rate limiting (prevents overload)
+
+Auditing (logs user actions)
